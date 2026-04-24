@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def read_and_parse_input_data(filename, ecdna_position_df = None, normal_name='diploid', input_type='tsv', separator='X',
                               chrom_column='chrom', allele_columns=['cn_a', 'cn_b'], maxcn=8,
-                              total_copy_numbers=False):
+                              total_copy_numbers=False, sex="none"):
     
     if maxcn > 8:
         raise MEDICCIOError("Maximum copy number must be <= 8.")
@@ -59,7 +59,7 @@ def read_and_parse_input_data(filename, ecdna_position_df = None, normal_name='d
     
     ## Add normal sample if needed
     input_df = add_normal_sample(input_df, normal_name, allele_columns=allele_columns, 
-                                    total_copy_numbers=total_copy_numbers, chrom_column=chrom_column)
+                                    total_copy_numbers=total_copy_numbers, chrom_column=chrom_column, sex=sex)
     nsamples = input_df.index.get_level_values('sample_id').unique().shape[0]
     nchr = input_df.index.get_level_values(chrom_column).unique().shape[0]
     nsegs = input_df.loc[normal_name,:].shape[0]
@@ -313,7 +313,7 @@ def _read_fasta_as_dataframe(infile: str, separator: str = 'X', allele_columns =
     return result
 
 def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_copy_numbers=False,
-                      chrom_column='chrom'):
+                      chrom_column='chrom', sex="none"):
     """Adds an artificial normal samples with the supplied name to the data frame.
     The normal sample has CN=1 on all supplied alleles. """
     samples = df.index.get_level_values('sample_id').unique()
@@ -326,8 +326,27 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
     if normal_name is not None and normal_name not in samples:
         logger.info(f"Normal sample '{normal_name}' not found, adding artifical normal by the name: '{normal_name}'.")
         tmp = df.unstack('sample_id')
+        chroms = tmp.index.get_level_values(chrom_column)
+
+        is_male = sex is not None and sex.upper() in ("MALE", "M")
+        is_female = sex is not None and sex.upper() in ("FEMALE", "F", "XX")
+        sex_chrom_mask = chroms.str.contains('X|Y', regex=True)
+        y_chrom_mask = chroms.str.contains('Y', regex=True)
+
         for col in allele_columns:
-            tmp.loc[:, (col, normal_name)] = normal_value
+            if sex is None:
+                # No sex chromosome info: leave sex chromosomes untouched, set only autosomes
+                autosome_mask = ~sex_chrom_mask
+                tmp.loc[autosome_mask, (col, normal_name)] = normal_value
+            else:
+                tmp.loc[:, (col, normal_name)] = normal_value
+                if is_male and total_copy_numbers:
+                    # XY: both X and Y are haploid in the normal genome
+                    tmp.loc[sex_chrom_mask, (col, normal_name)] = '1'
+                elif is_female:
+                    # XX: chrY rows exist with CN=0 in tumor data; normal genome has no Y
+                    tmp.loc[y_chrom_mask, (col, normal_name)] = '0'
+
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', chrom_column, 'start', 'end']).sort_index()
     else:

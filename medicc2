@@ -144,6 +144,7 @@ parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
 parser.add_argument("--copy-number-rate", type=float, dest='copy_number_rate', default=2,
                     help='Export option: Weight of ecDNA distance in overall distance calculation (default: 2).')
+parser.add_argument("--sex", type=str, dest="sex", default="none", help="Expert option: Sex of the sample, choose from \"none\" (default), \"male\" or \"female\".")
 args = parser.parse_args()
 
 
@@ -195,7 +196,7 @@ if args.ecdna_tsv is not None:
         separator=args.input_chr_separator.strip(),
         allele_columns=allele_columns,
         total_copy_numbers=args.total_copy_numbers,
-        maxcn=args.maxcn)
+        maxcn=args.maxcn, sex=args.sex)
 
     if normal_name not in ecdna_cnp_df["sample_id"].values:
         logger.info("Adding normal sample to ecDNA copy-number profiles.")
@@ -232,7 +233,7 @@ else:
         separator=args.input_chr_separator.strip(),
         allele_columns=allele_columns,
         total_copy_numbers=args.total_copy_numbers,
-        maxcn=args.maxcn)
+        maxcn=args.maxcn, sex=args.sex)
 
 
 if args.filter_segment_length is not None:

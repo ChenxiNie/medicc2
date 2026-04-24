@@ -90,6 +90,7 @@ Logging settings can be changed using the `medicc/logging_conf.yaml` file with t
 * `--fst`: Expert option: path to an alternative FST. Default: None
 * `--fst-chr-separator`: Expert option: character used to separate chromosomes in the FST. Default: 'X'
 * `--wgd-x2`: Expert option: Treat WGD as a x2 operation. Default: False
+* `--sex`: Expert option: the sex of the sample. Default: none, choose form `none`, `male`, and `female`
 
 
 ## Input files
