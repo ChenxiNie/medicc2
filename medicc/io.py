@@ -297,8 +297,14 @@ def add_normal_sample(df, normal_name, allele_columns=['cn_a','cn_b'], total_cop
     if normal_name is not None and normal_name not in samples:
         logger.info(f"Normal sample '{normal_name}' not found, adding artifical normal by the name: '{normal_name}'.")
         tmp = df.unstack('sample_id')
+        chroms = tmp.index.get_level_values(chrom_column)
+        has_y = any('Y' in str(c) for c in chroms.unique())
         for col in allele_columns:
             tmp.loc[:, (col, normal_name)] = normal_value
+            if total_copy_numbers and has_y:
+                # XY individual: sex chromosomes are haploid in the normal genome
+                sex_chrom_mask = chroms.str.contains('X|Y', regex=True)
+                tmp.loc[sex_chrom_mask, (col, normal_name)] = '1'
         tmp = tmp.stack('sample_id')
         tmp = tmp.reorder_levels(['sample_id', chrom_column, 'start', 'end']).sort_index()
     else:
