@@ -137,6 +137,7 @@ parser.add_argument("--fst-chr-separator", type=str, dest='fst_chr_separator', d
                     help = 'Expert option: character used to separate chromosomes in the FST (default: \"X\").')
 parser.add_argument("--wgd-x2", action='store_true', default=False, dest='wgd_x2',
                     help='Expert option: Treat WGD as a x2 operation (default: False).', required=False)
+parser.add_argument("--sex", type=str, dest="sex", default="none", help="Expert option: Sex of the sample, choose from \"none\" (default), \"male\" or \"female\".")
 args = parser.parse_args()
 
 
@@ -183,7 +184,8 @@ input_df = medicc.io.read_and_parse_input_data(
     separator=args.input_chr_separator.strip(),
     allele_columns=allele_columns,
     total_copy_numbers=args.total_copy_numbers,
-    maxcn=args.maxcn)
+    maxcn=args.maxcn,
+    sex=args.sex)
 
 if args.filter_segment_length is not None:
     old_size = len(input_df)
