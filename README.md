@@ -154,7 +154,7 @@ If you are interested in the WGD status of individual samples in your data, have
 
 
 # Issues
-If you experience problems with MEDICC2 please [file an issue directly on Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues/new) or [contact us directly](tom.kaufmann@mdc-berlin.de). 
+If you experience problems with MEDICC2 please [file an issue directly on Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues/new) or [contact us directly](chenxi.nie@iccb-cologne.org). 
 
 ## Known Issues
 
@@ -202,7 +202,7 @@ MEDICC2 will assume that the segmentation is gap-less, i.e. that gaps between ne
 
 
 # Bugs, feature requests and contact
-You can report bugs and request features directly in [Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues) or contact us via at *tom.kaufmann@iccb-cologne.org*.
+You can report bugs and request features directly in [Bitbucket](https://bitbucket.org/schwarzlab/medicc2/issues) or contact us via at *chenxi.nie@iccb-cologne.org*.
 
 
 # License
